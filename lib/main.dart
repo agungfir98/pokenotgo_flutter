@@ -40,7 +40,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<dynamic> pokemonList = [];
+  List<dynamic> _pokemonList = [];
   @override
   void initState() {
     super.initState();
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
         document: gql(qlString), variables: const {'limit': 5, 'offset': 1}));
 
     setState(() {
-      pokemonList = queryResult.data!["pokemons"]!["results"];
+      _pokemonList = queryResult.data!["pokemons"]!["results"];
     });
   }
 
@@ -89,13 +89,22 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Column(
           children: [
-            ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: pokemonList.length,
-              itemBuilder: (context, index) {
-                return Cards(pokemonList[index]);
+            GridView.builder(
+                itemCount: _pokemonList.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(8.0),
+                itemBuilder: (_, index) {
+                  return pokeCard(_pokemonList[index]!['image'],
+                      _pokemonList[index]!['name']);
+                }),
+            ElevatedButton(
+              onPressed: () {
+                print(_pokemonList);
               },
+              child: const Text('console'),
             ),
           ],
         ),
@@ -118,9 +127,25 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
-  Widget Cards(item) {
+  Card pokeCard(String imgUrl, String pokeName) {
     return Card(
-      child: Text(item!["name"]),
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(
+          color: Color.fromARGB(255, 208, 208, 208),
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Image(
+            fit: BoxFit.cover,
+            height: 100,
+            image: NetworkImage(imgUrl),
+          ),
+          const SizedBox(),
+          Text(pokeName)
+        ],
+      ),
     );
   }
 }
