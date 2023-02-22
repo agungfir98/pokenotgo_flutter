@@ -41,6 +41,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<dynamic> _pokemonList = [];
+  String searchInput = "";
   @override
   void initState() {
     super.initState();
@@ -80,6 +81,10 @@ class _MyHomePageState extends State<MyHomePage> {
     FlutterNativeSplash.remove();
   }
 
+  void submitSearch() {
+    print(searchInput);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +94,29 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Column(
           children: [
+            Center(
+              child: Container(
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                alignment: Alignment.center,
+                width: 300,
+                child: TextFormField(
+                  onChanged: (value) => setState(() {
+                    searchInput = value;
+                  }),
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.search),
+                      color: Colors.black26,
+                      onPressed: submitSearch,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             GridView.builder(
                 itemCount: _pokemonList.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -97,8 +125,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 shrinkWrap: true,
                 padding: const EdgeInsets.all(8.0),
                 itemBuilder: (_, index) {
-                  return pokeCard(_pokemonList[index]!['image'],
-                      _pokemonList[index]!['name']);
+                  return pokeCard(
+                    _pokemonList[index]!['image'],
+                    _pokemonList[index]!['name'],
+                  );
                 }),
             ElevatedButton(
               onPressed: () {
