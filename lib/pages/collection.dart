@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PokeCollection extends StatelessWidget {
+  static String nameRoute = '/collections';
   const PokeCollection({super.key});
 
   static var sumPoke = 0;
