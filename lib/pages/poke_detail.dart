@@ -1,10 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:pokenotgo/graphql/api_uri.dart';
+import 'package:pokenotgo/model/model_pokemon.dart';
 
-class PokeDetail extends StatelessWidget {
+class PokeDetail extends StatefulWidget {
   static String nameRoute = '/detail';
-  const PokeDetail({super.key, required this.id});
+  const PokeDetail({super.key, required this.name});
 
-  final int id;
+  final String name;
+
+  @override
+  State<PokeDetail> createState() => _PokeDetailState();
+}
+
+class _PokeDetailState extends State<PokeDetail> {
+  final getPokemon = FetchPokemon();
+  late Pokemon _pokemon = const Pokemon(name: '', types: []);
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  void getData() async {
+    QueryResult queryResult = await getPokemon.getData(
+      """query (\$name: String!) {
+  pokemon(name: \$name) {
+    name
+    sprites {
+      front_default
+    }
+    types {
+      type {
+        name
+      }
+    }
+    stats {
+      stat {
+        name
+      }
+      base_stat
+    }
+    abilities {
+      ability {
+        name
+      }
+    }
+    moves {
+      move {
+        name
+      }
+    }
+  }
+}""",
+      {"name": widget.name},
+    );
+
+    print(queryResult.data!['pokemon']);
+    final dynamic pokemonJSON = queryResult.data!['pokemon'];
+    final Pokemon pokemon = Pokemon.fromJson(pokemonJSON);
+    _pokemon = pokemon;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +76,7 @@ class PokeDetail extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'detail pokemon ${id}',
+                'detail pokemon ${_pokemon.name} ${_pokemon.types.map((e) => "${e.type.name} ")}',
                 style: const TextStyle(
                   color: Colors.black38,
                   fontWeight: FontWeight.w800,
@@ -26,6 +84,11 @@ class PokeDetail extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
+              ElevatedButton(
+                  onPressed: () {
+                    print(_pokemon);
+                  },
+                  child: const Text('Print'))
             ],
           ),
         ));
