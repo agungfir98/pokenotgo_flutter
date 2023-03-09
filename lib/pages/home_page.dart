@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:pokenotgo/graphql/api_uri.dart';
+import 'package:pokenotgo/model/pokeList.model.dart';
 import 'package:pokenotgo/pages/collection.dart';
 import 'package:pokenotgo/pages/poke_detail.dart';
 
@@ -15,25 +17,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<dynamic> _pokemonList = [];
+  List<PokeList> _pokemonList = [];
   String searchInput = "";
+
+  final pokemon = FetchPokemon();
   @override
   void initState() {
     super.initState();
     initialization();
-    fetchData();
+    getData();
   }
 
-  void fetchData() async {
-    HttpLink apiUri = HttpLink('https://graphql-pokeapi.graphcdn.app/');
-    GraphQLClient qlClient = GraphQLClient(
-      link: apiUri,
-      cache: GraphQLCache(
-        store: HiveStore(),
-      ),
-    );
-
-    String qlString = """query (\$limit: Int!, \$offset: Int!) {
+  void getData() async {
+    final QueryResult queryResult = await pokemon.getData(
+      """query (\$limit: Int!, \$offset: Int!) {
     pokemons(limit: \$limit, offset: \$offset) {
       results {
         name
@@ -42,13 +39,15 @@ class _MyHomePageState extends State<MyHomePage> {
         image
       }
     }
-  }""";
-
-    QueryResult queryResult = await qlClient.query(QueryOptions(
-        document: gql(qlString), variables: const {'limit': 5, 'offset': 1}));
-
+  }""",
+      {'limit': 5, 'offset': 1},
+    );
+    print(queryResult.data!['pokemons']!['results']);
+    final List<dynamic> decodeJson = queryResult.data!['pokemons']!['results'];
+    List<PokeList> pokemonList =
+        decodeJson.map((json) => PokeList.fromJson(json)).toList();
     setState(() {
-      _pokemonList = queryResult.data!["pokemons"]!["results"];
+      _pokemonList = pokemonList;
     });
   }
 
@@ -102,19 +101,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemBuilder: (_, index) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            PokeDetail(id: _pokemonList[index]!['id']),
-                      ));
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              PokeDetail(name: _pokemonList[index].name),
+                        ),
+                      );
                     },
                     child: pokeCard(
-                      _pokemonList[index]!['image'],
-                      _pokemonList[index]!['name'],
+                      _pokemonList[index].image,
+                      _pokemonList[index].name,
                     ),
                   );
                 }),
             ElevatedButton(
               onPressed: () {
+                // getData();
                 print(_pokemonList);
               },
               child: const Text('console'),
