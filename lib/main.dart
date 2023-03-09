@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         MyHomePage.nameRoute: (context) => const MyHomePage(
               title: 'Poke Not GO',
             ),
-        PokeCollection.nameRoute: (context) => const PokeCollection()
+        PokeCollection.nameRoute: (context) => const PokeCollection(),
       }, // home: const MyHomePage(title: 'Poke Not GO'),
     );
   }
