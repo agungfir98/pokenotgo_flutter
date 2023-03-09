@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:pokenotgo/graphql/api_uri.dart';
-import 'package:pokenotgo/model/model_pokemon.dart';
+import 'package:pokenotgo/model/pokemon.model.dart';
 
 class PokeDetail extends StatefulWidget {
   static String nameRoute = '/detail';
